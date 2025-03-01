@@ -44,6 +44,13 @@ export default function TaskList() {
    const totalTasks = tasks.length;
    const completedTasks = tasks.filter((task) => task.completed).length;
 
+   const editTask = (index: number, newText: string) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task, i) =>
+        i === index ? { ...task, text: newText } : task
+      )
+    );
+  }
   return (
     <div className="mt-6 w-full max-w-md">
       <TaskForm setTasks={addTask} />
@@ -75,6 +82,7 @@ export default function TaskList() {
               task={task}
               toggleCompletion={() => toggleTaskCompletion(index)}
               removeTask={() => removeTask(index)}
+              editTask={(newText) => editTask(index, newText)}
             />
           ))
         )}

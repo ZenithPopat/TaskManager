@@ -1,29 +1,65 @@
-type TaskItemProps = {
-  task: { text: string; completed: boolean };
-  toggleCompletion: () => void;
-  removeTask: () => void;
+import { useState } from "react";
+
+type Task = {
+  text: string;
+  completed: boolean;
 };
 
-export default function TaskItem({ task, toggleCompletion, removeTask }: TaskItemProps) {
+type TaskItemProps = {
+  task: Task;
+  toggleCompletion: () => void;
+  removeTask: () => void;
+  editTask: (newText: string) => void; // 🆕 Edit function
+};
+
+export default function TaskItem({ task, toggleCompletion, removeTask, editTask }: TaskItemProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newText, setNewText] = useState(task.text);
+
+  const handleEdit = () => {
+    if (newText.trim() !== "") {
+      editTask(newText);
+    }
+    setIsEditing(false);
+  };
+
   return (
-    <div className="flex justify-between items-center bg-gray-800 p-2 my-2 rounded-md">
-      <div className="flex items-center">
+    <div className="flex items-center justify-between bg-gray-800 p-2 rounded shadow mt-2">
+      {isEditing ? (
         <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={toggleCompletion}
-          className="mr-2"
+          type="text"
+          value={newText}
+          onChange={(e) => setNewText(e.target.value)}
+          onBlur={handleEdit} // Save when input loses focus
+          onKeyDown={(e) => e.key === "Enter" && handleEdit()} // Save on Enter
+          className="p-1 border border-gray-300 rounded w-full"
+          autoFocus
         />
-        <span className={task.completed ? "line-through text-gray-500" : ""}>
+      ) : (
+        <span
+          className={`flex-1 cursor-pointer ${task.completed ? "line-through text-gray-500" : ""}`}
+          onClick={toggleCompletion}
+        >
           {task.text}
         </span>
+      )}
+
+      <div className="flex space-x-2">
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-blue-500 hover:underline"
+          >
+            ✏️ Edit
+          </button>
+        )}
+        <button
+          onClick={removeTask}
+          className="text-red-500 hover:underline"
+        >
+          ❌
+        </button>
       </div>
-      <button
-        onClick={removeTask}
-        className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md text-white"
-      >
-        Delete
-      </button>
     </div>
   );
 }
