@@ -3,6 +3,7 @@ import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 
 type Task = {
+  id: string;
   text: string;
   completed: boolean;
 };
@@ -19,20 +20,26 @@ export default function TaskList() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (taskText: string) => {
-    setTasks((prevTasks) => [...prevTasks, { text: taskText, completed: false }]);
+  const addTask = (text: string) => {
+    const newTask: Task = {
+      id: crypto.randomUUID(), // Generate unique ID
+      text,
+      completed: false,
+    };
+
+    setTasks((prev) => [...prev, newTask]);
   };
 
-  const toggleTaskCompletion = (index: number) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task, i) =>
-        i === index ? { ...task, completed: !task.completed } : task
+  const toggleTaskCompletion = (id: string) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
       )
     );
   };
 
-  const removeTask = (indexToRemove: number) => {
-    setTasks((prevTasks) => prevTasks.filter((_, index) => index !== indexToRemove));
+  const removeTask = (id: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
   const clearTasks = () => {
@@ -44,16 +51,14 @@ export default function TaskList() {
    const totalTasks = tasks.length;
    const completedTasks = tasks.filter((task) => task.completed).length;
 
-   const editTask = (index: number, newText: string) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task, i) =>
-        i === index ? { ...task, text: newText } : task
-      )
+  const editTask = (id: string, newText: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, text: newText } : task))
     );
-  }
+  };
   return (
     <div className="mt-6 w-full max-w-md">
-      <TaskForm setTasks={addTask} />
+      <TaskForm addTask={addTask} />
 
       {/* Task Counter */}
       {totalTasks > 0 && (
@@ -76,13 +81,13 @@ export default function TaskList() {
         {tasks.length === 0 ? (
           <p className="text-gray-400 text-center">No tasks yet. Add one!</p>
         ) : (
-          tasks.map((task, index) => (
+          tasks.map((task) => (
             <TaskItem
-              key={index}
+              key={task.id}
               task={task}
-              toggleCompletion={() => toggleTaskCompletion(index)}
-              removeTask={() => removeTask(index)}
-              editTask={(newText) => editTask(index, newText)}
+              toggleTaskCompletion={toggleTaskCompletion}
+              removeTask={removeTask}
+              editTask={editTask}
             />
           ))
         )}
