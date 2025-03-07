@@ -5,6 +5,7 @@ type Task = {
   text: string;
   completed: boolean;
   priority: 'Low' | 'Medium' | 'High';
+  dueDate: string | null;
 };
 
 type Priority = "Low" | "Medium" | "High";
@@ -42,6 +43,15 @@ export default function TaskItem({ task, toggleTaskCompletion, removeTask, editT
     editTask(task.id, newText, newPriority);
     setIsEditing(false);
   };
+
+  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !task.completed;
+
+
+  // const options: Intl.DateTimeFormatOptions = {
+  //   year: "numeric",
+  //   month: "long",
+  //   day: "numeric",
+  // };
 
   return (
     <div
@@ -81,11 +91,19 @@ export default function TaskItem({ task, toggleTaskCompletion, removeTask, editT
       ) : (
         <div>
           <span
-          className={`flex-1 cursor-pointer ${task.completed ? "line-through text-gray-800" : "text-lg font-semibold"}`}
+          className={`flex-1 cursor-pointer ${task.completed ? "line-through text-gray-800" : "text-lg font-semibold"}
+                     ${isOverdue ? "text-lg text-red-500 font-semibold" : ""}`}
           onClick={() => toggleTaskCompletion(task.id)}
           >
             {task.text}
           </span>
+          {task.dueDate && (
+            <span className={`text-sm ml-2 ${
+              isOverdue ? "text-red-500 font-semibold" : "text-gray-500"
+            }`}>
+              Due: {new Date(task.dueDate).toLocaleDateString("en-GB")}
+            </span>
+          )}
         </div>
       )}
 

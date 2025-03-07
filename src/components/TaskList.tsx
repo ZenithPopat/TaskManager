@@ -7,6 +7,7 @@ type Task = {
   text: string;
   completed: boolean;
   priority: 'Low' | 'Medium' | 'High';
+  dueDate: string | null;
 };
 
 type Priority = "Low" | "Medium" | "High";
@@ -29,12 +30,13 @@ export default function TaskList() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (text: string, priority: Priority) => {
+  const addTask = (text: string, priority: Priority, dueDate: string|null) => {
     const newTask: Task = {
       id: crypto.randomUUID(), // Generate unique ID
       text,
       completed: false,
       priority,
+      dueDate
     };
 
     setTasks((prev) => [...prev, newTask]);

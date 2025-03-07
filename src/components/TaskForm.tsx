@@ -2,21 +2,53 @@ import { useState } from "react";
 
 type Priority = "Low" | "Medium" | "High";
 interface TaskFormProps {
-  addTask: (id: string, priority: Priority) => void;
+  addTask: (id: string, priority: Priority, dueDate: string|null) => void;
 }
 
 const TaskForm = ({ addTask }: TaskFormProps) => {
   const [taskText, setTaskText] = useState<string>("");
   const [taskPriority, setTaskPriority] = useState<Priority>("Medium");
+  const [dueDate, setDueDate] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
+
+  const getTodayFormatted = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, "0"); // Ensure two digits
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Month is 0-based
+    const year = today.getFullYear();
+    
+    return `${year}-${month}-${day}`;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!taskText.trim()) {
+      setError("Task cannot be empty.");
+      return;
+    }
+
+    // const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const today = getTodayFormatted();
+    if (dueDate && new Date(dueDate) < new Date(today)) {
+      console.log(dueDate, today, true);
+    } else {
+      console.log(dueDate, today, false);
+    }
+    if (dueDate && new Date(dueDate) < new Date(today)) {
+      setError("Due date cannot be in the past.");
+      return;
+    }
+
+    setError("");
+
     if (taskText.trim()) {
       addTask(
-        taskText, taskPriority
+        taskText, taskPriority, dueDate
       );
       setTaskText("");
       setTaskPriority("Medium");
+      setDueDate(null);
     }
   };
 
@@ -39,7 +71,7 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
         />
       </div>
 
-      <div className="mb-2">
+      <div className="mb-2 flex space-x-2">
         <label htmlFor="priority" className="sr-only">
           Priority
         </label>
@@ -57,8 +89,21 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
           <option value="Medium">Medium</option>
           <option value="High">High</option>
         </select>
+        <div className="mb-2">
+          <label htmlFor="due-date" className="sr-only">Due Date</label>
+          <input
+            type="date"
+            id="due-date"
+            value={dueDate || ""}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="w-full p-2 border border-gray-300 dark:border-gray-600
+                       rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                       focus:ring-blue-500 dark:focus:ring-blue-400 bg-white
+                       dark:bg-gray-800 text-black dark:text-white transition-all"
+          />
+        </div>
       </div>
-
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       <button
         type="submit"
         className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 dark:bg-blue-700 dark:hover:bg-blue-800"
