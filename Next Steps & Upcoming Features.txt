@@ -1,0 +1,24 @@
+🔜 Next Steps & Upcoming Features:
+📌 (Short-Term Improvements - UI & UX)
+✅ Improve UI styling further (smooth animations, task hover effects, etc.).
+✅ Add task priorities (Low, Medium, High) & sorting.
+✅ Add due dates with sorting and highlighting overdue tasks.
+
+📌 (New Features - Functional Enhancements)
+✅ Add undo feature for task deletion.
+✅ Introduce categories or labels for better task organization.
+✅ Save tasks in localStorage to persist between sessions.
+
+📌 (Long-Term Goals - Advanced Features & Scaling)
+✅ Implement user authentication (sign in, multiple users).
+✅ Move data to a database (e.g., Firebase, Supabase, or PlanetScale).
+✅ Deploy the app online (Vercel, Netlify, or Firebase Hosting).
+
+🔹 Optimize & Polish the UI Further
+
+Add animations and smooth transitions.
+Improve the task input field design.
+🔹 Implement New Features (Future Roadmap)
+1️⃣ Task Priorities (Low, Medium, High)
+2️⃣ Due Dates & Sorting
+3️⃣ Undo Task Deletion
