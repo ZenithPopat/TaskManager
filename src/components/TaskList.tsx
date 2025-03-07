@@ -6,7 +6,7 @@ type Task = {
   id: string;
   text: string;
   completed: boolean;
-  priority: string;
+  priority: 'Low' | 'Medium' | 'High';
 };
 
 type Priority = "Low" | "Medium" | "High";
@@ -29,7 +29,7 @@ export default function TaskList() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (text: string, priority: string) => {
+  const addTask = (text: string, priority: Priority) => {
     const newTask: Task = {
       id: crypto.randomUUID(), // Generate unique ID
       text,
@@ -61,9 +61,9 @@ export default function TaskList() {
    const totalTasks = tasks.length;
    const completedTasks = tasks.filter((task) => task.completed).length;
 
-  const editTask = (id: string, newText: string) => {
+  const editTask = (id: string, newText: string, newPriority: Priority) => {
     setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, text: newText } : task))
+      prev.map((task) => (task.id === id ? { ...task, text: newText, priority: newPriority } : task))
     );
   };
 
@@ -72,7 +72,7 @@ export default function TaskList() {
   );
   
   return (
-    <div className="mt-6 w-full max-w-md">
+    <div className="mt-6 w-full max-w-lg mx-auto">
       <TaskForm addTask={addTask} />
 
       {/* Task Counter */}
