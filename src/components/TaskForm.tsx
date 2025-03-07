@@ -1,20 +1,20 @@
 import { useState } from "react";
 interface TaskFormProps {
-  addTask: (id: string) => void;
+  addTask: (id: string, priority: string) => void;
 }
 
 const TaskForm = ({ addTask }: TaskFormProps) => {
   const [taskText, setTaskText] = useState<string>("");
+  const [taskPriority, setTaskPriority] = useState<string>("Medium");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (taskText.trim()) {
       addTask(
-        // id: Date.now().toString(), // Use timestamp as a unique ID
-        taskText,
-        // completed: false,
+        taskText, taskPriority
       );
       setTaskText("");
+      setTaskPriority("Medium");
     }
   };
 
@@ -43,6 +43,27 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
                     transition-all"
         />
       </div>
+
+      <div className="mb-2">
+        <label htmlFor="priority" className="sr-only">
+          Priority
+        </label>
+        <select
+          id="priority"
+          value={taskPriority}
+          onChange={(e) => setTaskPriority(e.target.value)}
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 
+                    rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                    focus:ring-blue-500 dark:focus:ring-blue-400 
+                    bg-white dark:bg-gray-800 text-black dark:text-white 
+                    transition-all"
+        >
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+
       <button
         type="submit"
         className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 dark:bg-blue-700 dark:hover:bg-blue-800"

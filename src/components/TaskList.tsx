@@ -6,6 +6,15 @@ type Task = {
   id: string;
   text: string;
   completed: boolean;
+  priority: string;
+};
+
+type Priority = "Low" | "Medium" | "High";
+
+const priorityOrder: Record<Priority, number> = {
+  Low: 1,
+  Medium: 2,
+  High: 3,
 };
 
 export default function TaskList() {
@@ -20,11 +29,12 @@ export default function TaskList() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (text: string) => {
+  const addTask = (text: string, priority: string) => {
     const newTask: Task = {
       id: crypto.randomUUID(), // Generate unique ID
       text,
       completed: false,
+      priority,
     };
 
     setTasks((prev) => [...prev, newTask]);
@@ -56,6 +66,11 @@ export default function TaskList() {
       prev.map((task) => (task.id === id ? { ...task, text: newText } : task))
     );
   };
+
+  const sortedTasks = tasks.sort(
+    (a, b) => priorityOrder[a.priority as Priority] - priorityOrder[b.priority as Priority]
+  );
+  
   return (
     <div className="mt-6 w-full max-w-md">
       <TaskForm addTask={addTask} />
@@ -81,7 +96,7 @@ export default function TaskList() {
         {tasks.length === 0 ? (
           <p className="text-gray-400 text-center">No tasks yet. Add one!</p>
         ) : (
-          tasks.map((task) => (
+          sortedTasks.map((task) => (
             <TaskItem
               key={task.id}
               task={task}

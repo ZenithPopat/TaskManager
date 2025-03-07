@@ -4,6 +4,7 @@ type Task = {
   id: string;
   text: string;
   completed: boolean;
+  priority: string;
 };
 
 type TaskItemProps = {
@@ -50,6 +51,17 @@ export default function TaskItem({ task, toggleTaskCompletion, removeTask, editT
       )}
 
       <div className="flex space-x-2">
+        <span
+          className={`ml-2 py-1 px-3 rounded-full text-white text-xs font-semibold ${
+            task.priority === "Low"
+              ? "bg-green-500"
+              : task.priority === "Medium"
+              ? "bg-yellow-500"
+              : "bg-red-500"
+          }`}
+        >
+          {task.priority}
+        </span>
         {!isEditing && (
           <button
           onClick={() => {
