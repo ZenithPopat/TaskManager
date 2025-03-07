@@ -37,12 +37,12 @@ A simple task manager app built with React, allowing users to create, edit, dele
 
 1. Clone the repository:
     ```bash
-    git clone <repo-url>
+    git clone [<repo-url>](https://github.com/ZenithPopat/TaskManager.git)
     ```
 
 2. Navigate to the project directory:
     ```bash
-    cd <project-directory>
+    cd TaskManager
     ```
 
 3. Install dependencies:
