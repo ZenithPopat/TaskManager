@@ -1,72 +1,249 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Task = {
   id: string;
   text: string;
   completed: boolean;
+  priority: 'Low' | 'Medium' | 'High';
 };
+
+type Priority = "Low" | "Medium" | "High";
 
 type TaskItemProps = {
   task: Task;
   toggleTaskCompletion: (id: string) => void;
   removeTask: (id: string) => void;
-  editTask: (id: string, newText: string) => void; // 🆕 Edit function
+  editTask: (id: string, newText: string, newPriority: Priority) => void; // 🆕 Edit function
 };
 
 export default function TaskItem({ task, toggleTaskCompletion, removeTask, editTask }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [newText, setNewText] = useState(task.text);
+  const [newPriority, setNewPriority] = useState(task.priority);
+
+  useEffect(() => {
+    if (isEditing) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setIsEditing(false);
+          setNewText(task.text);
+          setNewPriority(task.priority);
+        }
+      };
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [isEditing, task.text, task.priority]);
 
   const handleEdit = () => {
     if (newText.trim() === "") return;
-    editTask(task.id, newText);
+    editTask(task.id, newText, newPriority);
     setIsEditing(false);
   };
 
   return (
     <div
-      className={`flex items-center justify-between text-black dark:text-white p-4 rounded-lg shadow-md mt-4 transition-transform duration-300 hover:scale-105 hover:shadow-lg 
-        ${task.completed ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-300 dark:bg-gray-700'}`}
+    className={`flex items-center justify-between text-black dark:text-white p-3 rounded-lg shadow-md mt-4 transition-transform duration-300 hover:scale-105 hover:shadow-lg 
+      ${task.completed ? "bg-gray-200 dark:bg-gray-600" : "bg-gray-300 dark:bg-gray-700"} w-full max-w-4xl space-x-4`}
     >
       {isEditing ? (
-        <input
-          type="text"
-          value={newText}
-          onChange={(e) => {
-            setNewText(e.target.value);
-          }}
-          onBlur={handleEdit} 
-          onKeyDown={(e) => e.key === "Enter" && handleEdit()} 
-          className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          autoFocus
-        />
+        <div className="flex flex-col w-full">
+          {/* Task Text Input */}
+          <input
+            type="text"
+            value={newText}
+            onChange={(e) => setNewText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleEdit()}
+            className="p-2 border bg-white text-black border-gray-300 
+                      dark:border-gray-600 dark:bg-gray-800 dark:text-white
+                      rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+            autoFocus
+          />
+          
+          {/* Priority Dropdown */}
+          <div className="mb-2">
+            <select
+              value={newPriority}
+              onChange={(e) => setNewPriority(e.target.value as "Low" | "Medium" | "High")}
+              className="p-2 border bg-white text-black border-gray-300
+                         dark:border-gray-600 dark:bg-gray-800 dark:text-white
+                         rounded w-full focus:outline-none focus:ring-2
+                         focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
       ) : (
-        <span
-          className={`flex-1 cursor-pointer ${task.completed ? "line-through text-gray-500" : ""}`}
+        <div>
+          <span
+          className={`flex-1 cursor-pointer ${task.completed ? "line-through text-gray-800" : "text-lg font-semibold"}`}
           onClick={() => toggleTaskCompletion(task.id)}
-        >
-          {task.text}
-        </span>
+          >
+            {task.text}
+          </span>
+        </div>
       )}
 
-      <div className="flex space-x-2">
-        {!isEditing && (
-          <button
-          onClick={() => {
-            setNewText(task.text);
-            setIsEditing(true);
-          }}
-          className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
-        >
-          ✏️ Edit
-        </button>
-        )}
+      <div className="flex items-center space-x-4 ml-4">
+      {/* Priority Badge */}
+      {!isEditing && (
+        <span
+        className={`px-3 py-1 rounded-full text-white text-xs font-semibold
+          ${task.priority === "Low" ? "bg-green-500" : ""}
+          ${task.priority === "Medium" ? "bg-yellow-500" : ""}
+          ${task.priority === "High" ? "bg-red-500" : ""}`}
+      > 
+        {task.priority}
+      </span>
+      )}
+
+      <div className="flex space-x-3">
         <button
-            onClick={() => removeTask(task.id)}
-            className="text-red-500 hover:text-red-700 transition-colors duration-200">
-            🗑️ Delete
+          onClick={() => {
+            if (isEditing) {
+              handleEdit(); // Save on clicking "Save" while editing
+            } else {
+              setNewText(task.text);
+              setNewPriority(task.priority);
+              setIsEditing(true);
+            }
+          }}
+          className={`px-4 py-2 rounded-md text-white transition-all duration-200 
+            ${isEditing ? "bg-green-500 hover:bg-green-600" : "bg-blue-500 hover:bg-blue-600"}`}
+        >
+          {isEditing ? (
+            <>
+              💾 Save
+            </>
+          ) : (
+            <>
+              ✏️ Edit
+            </>
+          )}
         </button>
+
+        {/* Cancel Button */}
+        {isEditing && (
+          <button
+            onClick={() => {
+              setIsEditing(false); // Revert to view mode
+              setNewText(task.text); // Revert changes to the original text
+              setNewPriority(task.priority); // Revert changes to the original priority
+            }}
+            className="px-4 py-2 rounded-md text-white bg-yellow-500 hover:bg-yellow-600 transition-all duration-200"
+          >
+            ❌ Cancel
+          </button>
+        )}
+
+        {/* Delete Button */}
+        <button
+          onClick={() => removeTask(task.id)}
+          className="px-4 py-2 rounded-md text-white bg-red-500 hover:bg-red-600 transition-all duration-200"
+        >
+          🗑️ Delete
+        </button>
+      </div>
       </div>
     </div>
   );
+
+  // return (
+  //   <div
+  //     className={`flex items-center justify-between text-black dark:text-white p-4 rounded-lg shadow-md mt-4 transition-transform duration-300 hover:scale-105 hover:shadow-lg 
+  //       ${task.completed ? 'bg-gray-200 dark:bg-gray-600' : 'bg-gray-300 dark:bg-gray-700'}`}
+  //   >
+  //     {isEditing ? (
+  //       <input
+  //         type="text"
+  //         value={newText}
+  //         onChange={(e) => {
+  //           setNewText(e.target.value);
+  //         }}
+  //         // onBlur={handleEdit} 
+  //         onKeyDown={(e) => e.key === "Enter" && handleEdit()} 
+  //         className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+  //         autoFocus
+  //       />
+  //     ) : (
+  //       <span
+  //         className={`flex-1 cursor-pointer ${task.completed ? "line-through text-gray-500" : ""}`}
+  //         onClick={() => toggleTaskCompletion(task.id)}
+  //       >
+  //         {task.text}
+  //       </span>
+  //     )}
+
+  //     {isEditing ? (
+  //       <select
+  //         value={newPriority}
+  //         onChange={(e) => setNewPriority(e.target.value as Priority)}
+  //         // onBlur={handleEdit}
+  //         className="ml-2 py-1 px-3 rounded-full text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+  //       >
+  //         <option value="Low" className="bg-green-500">Low</option>
+  //         <option value="Medium" className="bg-yellow-500">Medium</option>
+  //         <option value="High" className="bg-red-500">High</option>
+  //       </select>
+  //     ) : (
+  //       <span
+  //         className={`ml-2 py-1 px-3 rounded-full text-white text-xs font-semibold
+  //           ${task.priority === 'Low' ? 'bg-green-500' : ''}
+  //           ${task.priority === 'Medium' ? 'bg-yellow-500' : ''}
+  //           ${task.priority === 'High' ? 'bg-red-500' : ''}`}
+  //       >
+  //         {task.priority}
+  //       </span>
+  //     )}
+
+  //     <div className="flex space-x-2">
+  //       <button
+  //         onClick={() => {
+  //           if (isEditing) {
+  //             handleEdit(); // Save on clicking "Save" while editing
+  //           } else {
+  //             setNewText(task.text);
+  //             setNewPriority(task.priority); // Set initial priority when starting edit
+  //             setIsEditing(true);
+  //           }
+  //         }}
+  //         className={`text-blue-500 hover:text-blue-700 transition-colors duration-200 ${isEditing ? 'text-green-500' : ''}`}
+  //       >
+  //         {isEditing ? (
+  //           <>
+  //             ✅ Save
+  //           </>
+  //         ) : (
+  //           <>
+  //             ✏️ Edit
+  //           </>
+  //         )}
+  //       </button>
+
+  //       {/* Add Cancel button in Edit mode */}
+  //       {isEditing && (
+  //         <button
+  //           onClick={() => {
+  //             setIsEditing(false); // Revert to view mode
+  //             setNewText(task.text); // Revert changes to the original text
+  //             setNewPriority(task.priority); // Revert changes to the original priority
+  //           }}
+  //           className="text-red-500 hover:text-red-700 transition-colors duration-200 ml-2"
+  //         >
+  //           ❌ Cancel
+  //         </button>
+  //       )}
+  //       <button
+  //           onClick={() => removeTask(task.id)}
+  //           className="text-red-500 hover:text-red-700 transition-colors duration-200">
+  //           🗑️ Delete
+  //       </button>
+  //     </div>
+  //   </div>
+  // );
 }
