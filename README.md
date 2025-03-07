@@ -1,54 +1,78 @@
-# React + TypeScript + Vite
+# Task Manager App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple task manager app built with React, allowing users to create, edit, delete, and prioritize tasks. The app includes dark mode, task persistence with `localStorage`, and the ability to edit tasks with priority selection.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Task Creation & Management**: 
+  - Add new tasks
+  - Edit existing tasks
+  - Delete tasks
+  - Mark tasks as completed
+  - Undo task deletions (coming soon)
+  
+- **Prioritization**:
+  - Set task priority (Low, Medium, High) on creation and during editing
+  - Display task priority as a badge
+  - Sort tasks by priority
 
-## Expanding the ESLint configuration
+- **Dark Mode**:
+  - Toggle between light and dark mode
+  - User preference stored in `localStorage`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Responsive UI**:
+  - Mobile-friendly design
+  - Clear and intuitive task input, management, and editing features
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Tech Stack
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **Frontend**:
+  - React
+  - TypeScript
+  - TailwindCSS for styling
+  - Local Storage for task persistence
+  - Font Awesome for icons
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Installation
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+1. Clone the repository:
+    ```bash
+    git clone <repo-url>
+    ```
+
+2. Navigate to the project directory:
+    ```bash
+    cd <project-directory>
+    ```
+
+3. Install dependencies:
+    ```bash
+    npm install
+    ```
+
+4. Run the development server:
+    ```bash
+    npm start
+    ```
+
+5. Open `http://localhost:3000` in your browser.
+
+## Features To Be Added
+
+- **Task Sorting**: Sort tasks by priority, due date, and completion status.
+- **Undo Deletion**: Implement an undo feature for task deletions.
+- **Categories/Labels**: Add categories or labels to better organize tasks.
+- **User Authentication**: Implement user sign-in and task synchronization across sessions.
+- **Backend Integration**: Move from `localStorage` to a backend database (e.g., Firebase, Supabase, or PlanetScale).
+
+## Contributing
+
+1. Fork the repository
+2. Create a new branch for each feature
+3. Commit your changes
+4. Push to your forked repository
+5. Open a pull request to the main branch
+
+## License
+
+This project is licensed under the Blah Blah License - see the [LICENSE](LICENSE) file for details.
