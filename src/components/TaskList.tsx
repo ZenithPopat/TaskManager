@@ -26,9 +26,18 @@ export default function TaskList() {
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
 
-  const [sortBy, setSortBy] = useState<"priority" | "dueDate" | "completion">("priority");
-  const [filterPriority, setFilterPriority] = useState<Priority | null>(null);
-  const [filterCompletion, setFilterCompletion] = useState<boolean | null>(null);
+  const [sortBy, setSortBy] = useState<"priority" | "dueDate" | "completion">(() => {
+    const savedSort = localStorage.getItem("sort");
+    return savedSort ? JSON.parse(savedSort) : "priority";
+  });
+  const [filterPriority, setFilterPriority] = useState<Priority | null>(() => {
+    const savedPriority = localStorage.getItem("priorityFilter");
+    return savedPriority ? JSON.parse(savedPriority) : "";
+  });
+  const [filterCompletion, setFilterCompletion] = useState<boolean | null>(() => {
+    const savedCompletion = localStorage.getItem("completionFilter");
+    return savedCompletion ? JSON.parse(savedCompletion) : "";
+  });
 
   // Save tasks to localStorage whenever they change
   useEffect(() => {
@@ -80,7 +89,7 @@ export default function TaskList() {
 
   const filteredTasks = tasks.filter((task) => {
     const matchesPriority = filterPriority ? task.priority === filterPriority : true;
-    const matchesCompletion = filterCompletion !== null ? task.completed === filterCompletion : true;
+    const matchesCompletion = filterCompletion ? task.completed === filterCompletion : true;
     return matchesPriority && matchesCompletion;
   });
 
@@ -102,7 +111,7 @@ export default function TaskList() {
     }
     return 0;
   });
-  
+
   return (
     <div className="mt-6 w-full max-w-lg mx-auto">
       <TaskForm addTask={addTask} />

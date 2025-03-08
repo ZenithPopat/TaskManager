@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Priority = "Low" | "Medium" | "High";
 
@@ -10,15 +10,45 @@ interface TaskSortingFilteringProps {
 
 const TaskSortingFiltering: React.FC<TaskSortingFilteringProps>  = ({setSortBy, setFilterPriority, setFilterCompletion}) => {
 
-    const [selectedSort, setSelectedSort] = useState("priority");
-    const [selectedPriority, setSelectedPriority] = useState("");
-    const [selectedCompletion, setSelectedCompletion] = useState("");
+    const [selectedSort, setSelectedSort] = useState(() => {
+        const savedSort = localStorage.getItem("sort");
+        return savedSort ? JSON.parse(savedSort) : "priority";
+      });
+    const [selectedPriority, setSelectedPriority] = useState<Priority | string>(() => {
+        const savedPriority = localStorage.getItem("priorityFilter");
+        return savedPriority ? JSON.parse(savedPriority) : "";
+      });
+    const [selectedCompletion, setSelectedCompletion] = useState(() => {
+        const savedCompletion = localStorage.getItem("completionFilter");
+        return savedCompletion === "null" ? "" : (savedCompletion === "true" ? "completed" : "incomplete");;
+      });
     const [filter, setFilter] = useState<{ priority: Priority | null; completion: boolean | null }>({ priority: null, completion: null });
+
+    useEffect(() => {
+        const savedSort = localStorage.getItem('sort');
+        const storedSort = savedSort ? JSON.parse(savedSort) : "priority";
+        const savedPriority = localStorage.getItem('priorityFilter');
+        const storedPriority = savedPriority ? JSON.parse(savedPriority) : "";
+        const savedCompletion = localStorage.getItem('completionFilter');
+        const storedCompletion = savedCompletion === "null" ? "" : (savedCompletion === "true" ? "completed" : "incomplete");
+        if (storedSort) {
+            setSelectedSort(storedSort);
+        }
+        if (storedPriority) {
+            setSelectedPriority(storedPriority);
+            setFilter({ ...filter, priority: storedPriority });
+        }
+        if (storedCompletion) {
+            setSelectedCompletion(storedCompletion);
+            setFilter({ ...filter, completion: storedCompletion === "completed" ? true : storedCompletion === "incomplete" ? false : null });
+        }
+    }, []);
 
     const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value;
         setSelectedSort(value);
         setSortBy(value as "priority" | "dueDate" | "completion");
+        localStorage.setItem('sort', JSON.stringify(value));
     };
 
     const handlePriorityFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -26,6 +56,7 @@ const TaskSortingFiltering: React.FC<TaskSortingFilteringProps>  = ({setSortBy, 
         setSelectedPriority(value);
         setFilterPriority(value === "" ? null : value as Priority);
         setFilter({ ...filter, priority: value === "" ? null : value as Priority });
+        localStorage.setItem('priorityFilter', JSON.stringify(value));
     };
 
     const handleCompletionFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -33,7 +64,7 @@ const TaskSortingFiltering: React.FC<TaskSortingFilteringProps>  = ({setSortBy, 
         setSelectedCompletion(value);
         setFilterCompletion(value === "" ? null : value === "completed");
         setFilter({ ...filter, completion: value === "" ? null : value === "completed" });
-        console.log(filter);
+        localStorage.setItem('completionFilter', JSON.stringify(value === "" ? null : value === "completed"));
     };
 
     return (
@@ -69,6 +100,7 @@ const TaskSortingFiltering: React.FC<TaskSortingFilteringProps>  = ({setSortBy, 
 
             {/* Filtering by Completion */}
             <select
+                name="completion"
                 value={selectedCompletion}
                 onChange={handleCompletionFilterChange}
                 className="p-2 border bg-white text-black border-gray-300
@@ -85,11 +117,14 @@ const TaskSortingFiltering: React.FC<TaskSortingFilteringProps>  = ({setSortBy, 
             {(filter.priority || filter.completion) && (
                 <button
                     onClick={() => {
-                    setSelectedPriority("");
-                    setSelectedCompletion("");
-                    setFilterPriority(null);
-                    setFilterCompletion(null);
-                    setFilter({ priority: null, completion: null });
+                        setSelectedPriority("");
+                        setSelectedCompletion("");
+                        setFilterPriority(null);
+                        setFilterCompletion(null);
+                        setFilter({ priority: null, completion: null });
+                        localStorage.removeItem('priorityFilter');
+                        localStorage.removeItem('completionFilter');
+                        localStorage.removeItem('sort');
                     }}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                 >
