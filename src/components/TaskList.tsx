@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
+import TaskSortingFiltering from "./TaskSortingFiltering";
 
 type Task = {
   id: string;
@@ -24,6 +25,10 @@ export default function TaskList() {
     const savedTasks = localStorage.getItem("tasks");
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
+
+  const [sortBy, setSortBy] = useState<"priority" | "dueDate" | "completion">("priority");
+  const [filterPriority, setFilterPriority] = useState<Priority | null>(null);
+  const [filterCompletion, setFilterCompletion] = useState<boolean | null>(null);
 
   // Save tasks to localStorage whenever they change
   useEffect(() => {
@@ -69,9 +74,34 @@ export default function TaskList() {
     );
   };
 
-  const sortedTasks = tasks.sort(
-    (a, b) => priorityOrder[a.priority as Priority] - priorityOrder[b.priority as Priority]
-  );
+  // const sortedTasks = tasks.sort(
+  //   (a, b) => priorityOrder[a.priority as Priority] - priorityOrder[b.priority as Priority]
+  // );
+
+  const filteredTasks = tasks.filter((task) => {
+    const matchesPriority = filterPriority ? task.priority === filterPriority : true;
+    const matchesCompletion = filterCompletion !== null ? task.completed === filterCompletion : true;
+    return matchesPriority && matchesCompletion;
+  });
+
+  const sortedTasks = filteredTasks.sort((a, b) => {
+    if (sortBy === "priority") {
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    } else if (sortBy === "dueDate") {
+      if(!a.dueDate && !b.dueDate) {
+        return 0;
+      } else if (!a.dueDate) {
+        return 1;
+      }
+      else if (!b.dueDate) { 
+        return -1;
+      }
+      return (a.dueDate ? new Date(a.dueDate).getTime() : 0) - (b.dueDate ? new Date(b.dueDate).getTime() : 0);
+    } else if (sortBy === "completion") {
+      return Number(a.completed) - Number(b.completed);
+    }
+    return 0;
+  });
   
   return (
     <div className="mt-6 w-full max-w-lg mx-auto">
@@ -94,9 +124,18 @@ export default function TaskList() {
           Clear All Tasks
         </button>
       )}
+
+      <div>
+        <TaskSortingFiltering
+          setSortBy={setSortBy}
+          setFilterPriority={setFilterPriority}
+          setFilterCompletion={setFilterCompletion}
+      />
+      </div>
+
       <div className="mt-4">
-        {tasks.length === 0 ? (
-          <p className="text-gray-400 text-center">No tasks yet. Add one!</p>
+        {tasks.length !== 0 ? (sortedTasks.length === 0 ? (
+          <p className="text-gray-400 text-center">No tasks available!</p>
         ) : (
           sortedTasks.map((task) => (
             <TaskItem
@@ -107,7 +146,7 @@ export default function TaskList() {
               editTask={editTask}
             />
           ))
-        )}
+        )) : <p className="text-gray-400 text-center">No tasks yet. Add one!</p>}
       </div>
     </div>
   );
