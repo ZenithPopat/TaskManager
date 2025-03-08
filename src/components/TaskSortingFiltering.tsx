@@ -36,11 +36,11 @@ const TaskSortingFiltering: React.FC<TaskSortingFilteringProps>  = ({setSortBy, 
         }
         if (storedPriority) {
             setSelectedPriority(storedPriority);
-            setFilter({ ...filter, priority: storedPriority });
+            setFilter(f => ({ ...f, priority: storedPriority }));
         }
         if (storedCompletion) {
             setSelectedCompletion(storedCompletion);
-            setFilter({ ...filter, completion: storedCompletion === "completed" ? true : storedCompletion === "incomplete" ? false : null });
+            setFilter(f => ({ ...f, completion: storedCompletion === "completed" ? true : storedCompletion === "incomplete" ? false : null }));
         }
     }, []);
 
