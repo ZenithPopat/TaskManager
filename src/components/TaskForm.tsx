@@ -28,13 +28,7 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
       return;
     }
 
-    // const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
     const today = getTodayFormatted();
-    if (dueDate && new Date(dueDate) < new Date(today)) {
-      console.log(dueDate, today, true);
-    } else {
-      console.log(dueDate, today, false);
-    }
     if (dueDate && new Date(dueDate) < new Date(today)) {
       setError("Due date cannot be in the past.");
       return;
