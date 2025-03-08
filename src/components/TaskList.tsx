@@ -39,10 +39,37 @@ export default function TaskList() {
     return savedCompletion ? JSON.parse(savedCompletion) : "";
   });
 
+  const [deletedTask, setDeletedTask] = useState<Task | null>(null);
+  const [undoTimeout, setUndoTimeout] = useState<NodeJS.Timeout | null>(null);
+
   // Save tasks to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    const storedDeletedTask = localStorage.getItem("deletedTask");
+    if (storedDeletedTask) {
+      const { task, timestamp } = JSON.parse(storedDeletedTask);
+      const timePassed = Date.now() - timestamp;
+      const timeLeft = 5000 - timePassed;
+
+      // If it's within 5 seconds, allow undo
+      if (timePassed < 5000) {
+        setDeletedTask(task);
+
+        const timeout = setTimeout(() => {
+          setDeletedTask(null);
+          localStorage.removeItem("deletedTask");
+        }, timeLeft);
+
+        return () => clearTimeout(timeout);
+
+      } else {
+        localStorage.removeItem("deletedTask");
+      }
+    }
+  }, []);
 
   const addTask = (text: string, priority: Priority, dueDate: string|null) => {
     const newTask: Task = {
@@ -64,8 +91,35 @@ export default function TaskList() {
     );
   };
 
-  const removeTask = (id: string) => {
+  const deleteTask = (id: string) => {
+    const taskToDelete = tasks.find((task) => task.id === id);
+    if(!taskToDelete) return;
+
+    setDeletedTask(taskToDelete);
     setTasks((prev) => prev.filter((task) => task.id !== id));
+    localStorage.setItem("tasks", JSON.stringify(tasks.filter(task => task.id !== id)));
+
+    localStorage.setItem("deletedTask", JSON.stringify({task: taskToDelete, timestamp: Date.now()}));
+    
+    const timeout = setTimeout(() => {
+      setDeletedTask(null);
+      localStorage.removeItem("deletedTask");
+    }, 5000);
+    setUndoTimeout(timeout);
+
+    return () => {clearTimeout(timeout)};
+
+  };
+
+  const handleUndo = () => {
+    if (!deletedTask) return;
+    const updatedTasks = [...tasks, deletedTask];
+    setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    setDeletedTask(null);
+    if(undoTimeout) {
+      clearTimeout(undoTimeout);
+    }
   };
 
   const clearTasks = () => {
@@ -151,12 +205,20 @@ export default function TaskList() {
               key={task.id}
               task={task}
               toggleTaskCompletion={toggleTaskCompletion}
-              removeTask={removeTask}
+              deleteTask={deleteTask}
               editTask={editTask}
             />
           ))
         )) : <p className="text-gray-400 text-center">No tasks yet. Add one!</p>}
       </div>
+      {deletedTask && (
+        <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-4 rounded shadow">
+          <span>Task deleted</span>
+          <button onClick={handleUndo} className="ml-4 bg-blue-500 px-2 py-1 rounded">
+            Undo
+          </button>
+        </div>
+      )}
     </div>
   );
 }

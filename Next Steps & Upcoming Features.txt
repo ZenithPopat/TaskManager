@@ -5,7 +5,7 @@
 ✅ Add due dates with sorting and highlighting overdue tasks.
 
 📌 (New Features - Functional Enhancements)
-✅ Add undo feature for task deletion.
+✅ Add undo feature for task deletion. (Add 5 seconds timer in the toast)
 ✅ Introduce categories or labels for better task organization.
 ✅ Save tasks in localStorage to persist between sessions.
 
