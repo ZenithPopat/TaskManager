@@ -13,11 +13,11 @@ type Priority = "Low" | "Medium" | "High";
 type TaskItemProps = {
   task: Task;
   toggleTaskCompletion: (id: string) => void;
-  removeTask: (id: string) => void;
+  deleteTask: (id: string) => void;
   editTask: (id: string, newText: string, newPriority: Priority) => void; // 🆕 Edit function
 };
 
-export default function TaskItem({ task, toggleTaskCompletion, removeTask, editTask }: TaskItemProps) {
+export default function TaskItem({ task, toggleTaskCompletion, deleteTask, editTask }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [newText, setNewText] = useState(task.text);
   const [newPriority, setNewPriority] = useState(task.priority);
@@ -161,7 +161,7 @@ export default function TaskItem({ task, toggleTaskCompletion, removeTask, editT
 
         {/* Delete Button */}
         <button
-          onClick={() => removeTask(task.id)}
+          onClick={() => deleteTask(task.id)}
           className="px-4 py-2 rounded-md text-white bg-red-500 hover:bg-red-600 transition-all duration-200"
         >
           🗑️ Delete
