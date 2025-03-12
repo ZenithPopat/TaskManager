@@ -46,13 +46,6 @@ export default function TaskItem({ task, toggleTaskCompletion, deleteTask, editT
 
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !task.completed;
 
-
-  // const options: Intl.DateTimeFormatOptions = {
-  //   year: "numeric",
-  //   month: "long",
-  //   day: "numeric",
-  // };
-
   return (
     <div
     className={`flex items-center justify-between text-black dark:text-white p-3 rounded-lg shadow-md mt-4 transition-transform duration-300 hover:scale-105 hover:shadow-lg 

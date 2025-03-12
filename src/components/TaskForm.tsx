@@ -2,7 +2,7 @@ import { useState } from "react";
 
 type Priority = "Low" | "Medium" | "High";
 interface TaskFormProps {
-  addTask: (id: string, priority: Priority, dueDate: string|null) => void;
+  addTask: (text: string, priority: Priority, dueDate: string|null) => void;
 }
 
 const TaskForm = ({ addTask }: TaskFormProps) => {
@@ -28,8 +28,8 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
       return;
     }
 
-    const today = getTodayFormatted();
-    if (dueDate && new Date(dueDate) < new Date(today)) {
+    const today = new Date(getTodayFormatted());
+    if (dueDate && new Date(dueDate) < today) {
       setError("Due date cannot be in the past.");
       return;
     }
@@ -62,6 +62,7 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
                     focus:ring-blue-500 dark:focus:ring-blue-400 
                     bg-white dark:bg-gray-800 text-black dark:text-white 
                     transition-all"
+          aria-label="Task description"
         />
       </div>
 
@@ -71,6 +72,7 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
         </label>
         <select
           id="priority"
+          aria-label="Task Priority"
           value={taskPriority}
           onChange={(e) => setTaskPriority(e.target.value as Priority)}
           className="w-full p-2 border border-gray-300 dark:border-gray-600 
@@ -87,6 +89,7 @@ const TaskForm = ({ addTask }: TaskFormProps) => {
           <label htmlFor="due-date" className="sr-only">Due Date</label>
           <input
             type="date"
+            aria-label="Due Date"
             id="due-date"
             value={dueDate || ""}
             onChange={(e) => setDueDate(e.target.value)}

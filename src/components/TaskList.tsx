@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 import TaskSortingFiltering from "./TaskSortingFiltering";
@@ -32,11 +32,11 @@ export default function TaskList() {
   });
   const [filterPriority, setFilterPriority] = useState<Priority | null>(() => {
     const savedPriority = localStorage.getItem("priorityFilter");
-    return savedPriority ? JSON.parse(savedPriority) : "";
+    return savedPriority ? JSON.parse(savedPriority) : null;
   });
   const [filterCompletion, setFilterCompletion] = useState<boolean | null>(() => {
     const savedCompletion = localStorage.getItem("completionFilter");
-    return savedCompletion ? JSON.parse(savedCompletion) : "";
+    return savedCompletion ? JSON.parse(savedCompletion) : null;
   });
 
   const [deletedTask, setDeletedTask] = useState<Task | null>(null);
@@ -71,6 +71,12 @@ export default function TaskList() {
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (undoTimeout) clearTimeout(undoTimeout);
+    };
+  }, [undoTimeout]);
+
   const addTask = (text: string, priority: Priority, dueDate: string|null) => {
     const newTask: Task = {
       id: crypto.randomUUID(), // Generate unique ID
@@ -83,21 +89,23 @@ export default function TaskList() {
     setTasks((prev) => [...prev, newTask]);
   };
 
-  const toggleTaskCompletion = (id: string) => {
+  const toggleTaskCompletion = useCallback((id: string) => {
     setTasks((prev) =>
       prev.map((task) =>
         task.id === id ? { ...task, completed: !task.completed } : task
       )
     );
-  };
+  }, [setTasks]);
 
   const deleteTask = (id: string) => {
     const taskToDelete = tasks.find((task) => task.id === id);
     if(!taskToDelete) return;
 
     setDeletedTask(taskToDelete);
-    setTasks((prev) => prev.filter((task) => task.id !== id));
-    localStorage.setItem("tasks", JSON.stringify(tasks.filter(task => task.id !== id)));
+
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
 
     localStorage.setItem("deletedTask", JSON.stringify({task: taskToDelete, timestamp: Date.now()}));
     
@@ -107,15 +115,15 @@ export default function TaskList() {
     }, 5000);
     setUndoTimeout(timeout);
 
-    return () => {clearTimeout(timeout)};
-
   };
 
   const handleUndo = () => {
     if (!deletedTask) return;
-    const updatedTasks = [...tasks, deletedTask];
-    setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    if (!tasks.find(task => task.id === deletedTask.id)) {
+      const updatedTasks = [...tasks, deletedTask];
+      setTasks(updatedTasks);
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    }
     setDeletedTask(null);
     if(undoTimeout) {
       clearTimeout(undoTimeout);
@@ -123,8 +131,10 @@ export default function TaskList() {
   };
 
   const clearTasks = () => {
-    setTasks([]); // Clear all tasks
-    localStorage.removeItem("tasks"); // Remove tasks from localStorage
+    if (window.confirm("Are you sure you want to delete all tasks? This cannot be undone!")) {
+      setTasks([]);
+      localStorage.removeItem("tasks");
+    }
   };
 
    // Count total & completed tasks
@@ -137,17 +147,13 @@ export default function TaskList() {
     );
   };
 
-  // const sortedTasks = tasks.sort(
-  //   (a, b) => priorityOrder[a.priority as Priority] - priorityOrder[b.priority as Priority]
-  // );
-
   const filteredTasks = tasks.filter((task) => {
     const matchesPriority = filterPriority ? task.priority === filterPriority : true;
-    const matchesCompletion = filterCompletion ? task.completed === filterCompletion : true;
+    const matchesCompletion = filterCompletion !== null ? task.completed === filterCompletion : true;
     return matchesPriority && matchesCompletion;
   });
 
-  const sortedTasks = filteredTasks.sort((a, b) => {
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
     if (sortBy === "priority") {
       return priorityOrder[a.priority] - priorityOrder[b.priority];
     } else if (sortBy === "dueDate") {
@@ -161,7 +167,7 @@ export default function TaskList() {
       }
       return (a.dueDate ? new Date(a.dueDate).getTime() : 0) - (b.dueDate ? new Date(b.dueDate).getTime() : 0);
     } else if (sortBy === "completion") {
-      return Number(a.completed) - Number(b.completed);
+      return Number(b.completed) - Number(a.completed);
     }
     return 0;
   });
