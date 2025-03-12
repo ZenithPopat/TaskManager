@@ -23,6 +23,13 @@ A simple task manager app built with React, allowing users to create, edit, dele
 - **Responsive UI**:
   - Mobile-friendly design
   - Clear and intuitive task input, management, and editing features
+ 
+- **Task Sorting And Filtering**:
+  - Sort tasks by priority, due date, and completion status.
+  - Filter tasks by Completion status and Priority.
+
+- **Undo Deletion**:
+  - Task deletions can be undone for 5 seconds after deletion.
 
 ## Tech Stack
 
@@ -31,13 +38,12 @@ A simple task manager app built with React, allowing users to create, edit, dele
   - TypeScript
   - TailwindCSS for styling
   - Local Storage for task persistence
-  - Font Awesome for icons
 
 ## Installation
 
 1. Clone the repository:
     ```bash
-    git clone [<repo-url>](https://github.com/ZenithPopat/TaskManager.git)
+    git clone (https://github.com/ZenithPopat/TaskManager.git)
     ```
 
 2. Navigate to the project directory:
@@ -59,9 +65,7 @@ A simple task manager app built with React, allowing users to create, edit, dele
 
 ## Features To Be Added
 
-- **Task Sorting**: Sort tasks by priority, due date, and completion status.
-- **Undo Deletion**: Implement an undo feature for task deletions.
-- **Categories/Labels**: Add categories or labels to better organize tasks.
+- **Categories/Labels**: Add categories or labels to organize tasks better.
 - **User Authentication**: Implement user sign-in and task synchronization across sessions.
 - **Backend Integration**: Move from `localStorage` to a backend database (e.g., Firebase, Supabase, or PlanetScale).
 
